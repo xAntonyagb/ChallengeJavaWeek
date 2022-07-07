@@ -2,6 +2,7 @@ package Jogo;
 
 public class CartasEscolhidas extends javax.swing.JFrame {
     
+    public static boolean start = false;
     
     public CartasEscolhidas() {
         initComponents();
@@ -11,13 +12,13 @@ public class CartasEscolhidas extends javax.swing.JFrame {
     public static int[] cartas = new int[3];
     
     public void setCartas(int posicao, int cont){
-        if(cont == 1){
+        if(cont == 0){
             cartas[0] = posicao;
         }
-        if(cont == 2){
+        if(cont == 1){
             cartas[1] = posicao;
         }
-        if(cont == 3){
+        if(cont == 2){
             cartas[2] = posicao;
         }
     }
@@ -28,6 +29,9 @@ public class CartasEscolhidas extends javax.swing.JFrame {
         img3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + cartas[2] +".png")));
     }
 
+    public boolean isStart() {
+        return start;
+    }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -118,6 +122,7 @@ public class CartasEscolhidas extends javax.swing.JFrame {
 
     private void btBatalharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btBatalharActionPerformed
         setVisible(false);
+        start = true;
         new Batalha().setVisible(true); 
     }//GEN-LAST:event_btBatalharActionPerformed
 

@@ -62,11 +62,12 @@ import java.util.Random;
         }
 
         private void funcaoBt(){
+            enviarEscolhidas();
+            
             cont = cont+1;
             if(cont == 3)
                 pronto = true;
             
-            enviarEscolhidas();
             Projeto starter = new Projeto();
             starter.IniciarJogo(pronto, getPoicao(), cont);
 

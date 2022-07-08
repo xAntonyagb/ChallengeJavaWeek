@@ -11,6 +11,7 @@ public class Projeto {
     private static ArrayList<Cartas> baralho = new ArrayList();
     public static ArrayList<Jogador> player = new ArrayList();
     public static Batalha cartasAI = new Batalha();
+    public static int escolhaAI;
 
     public static void main(String[] args) {
         gerarCartas();
@@ -47,6 +48,7 @@ public class Projeto {
             cartasAI.setCartas(pos, i);
             System.out.println("A AI gerou a carta: " + baralho.get(pos));
         }
+        System.out.print("\n");
     }
     
     public static void nomeJogador(){
@@ -63,11 +65,13 @@ public class Projeto {
     
     public static void selecaoDeCartas(Jogador jogador, int posicaoDaCarta, boolean pronto, int cont){
             jogador.addCarta(baralho.get(posicaoDaCarta));
-            System.out.println("\nCarta adicionada ao deck: " + baralho.get(posicaoDaCarta));
+            System.out.println("O jogador adicionou a carta: " + baralho.get(posicaoDaCarta));
             JOptionPane.showMessageDialog(null, "Carta adicionada!");
 
-            if(pronto == true)
+            if(pronto == true){
+                System.out.print("\n");
                 new CartasEscolhidas().setVisible(true); 
+            }
     }
     
     public static int Tamanho_DeckJogador(){
@@ -75,7 +79,7 @@ public class Projeto {
     }
     
     public static int Tamanho_DeckAI(){
-        return player.get(0).getListaCartas().size();
+        return player.get(1).getListaCartas().size();
     }
     
     public static int AI_MelhorAtributo(){
@@ -101,9 +105,9 @@ public class Projeto {
                 }
         }
         
-        System.out.println("Melhor forca AI: "+forca);
-        System.out.println("Melhor vida AI: "+vida);
-        System.out.println("Melhor defesa AI: "+defesa);
+        System.out.println("[T. AI] Melhor forca AI: "+forca);
+        System.out.println("[T. AI] Melhor vida AI: "+vida);
+        System.out.println("[T. AI] Melhor defesa AI: "+defesa);
         
         if(forca > vida){
             return 0;
@@ -115,8 +119,11 @@ public class Projeto {
             return 1;
         }else if(defesa > vida){
             return 2;
-        }else{
+        }else if(defesa > forca){
             return 2;
+        }else{
+            System.out.println("\n[T. AI] Escolheu forca por eliminacao: "+ forca);
+            return 0;
         }
     }
      
@@ -124,27 +131,34 @@ public class Projeto {
         String vencedor;
 
         if(atributo == "vida"){
-            vencedor = calculoVida(cartaEscolhida, escolhaAI(atributo));
+            vencedor = calculoVida(cartaEscolhida, escolhaAI);
         }else if(atributo == "defesa"){
-            vencedor = calculoDefesa(cartaEscolhida, escolhaAI(atributo));
+            vencedor = calculoDefesa(cartaEscolhida, escolhaAI);
         }else{
-            vencedor = calculoForca(cartaEscolhida, escolhaAI(atributo));
+            vencedor = calculoForca(cartaEscolhida, escolhaAI);
         }
-        System.out.println("Terminei de calcular, resultado: " + vencedor);
+        System.out.println("\nResultado da rodada: " + vencedor);
         return vencedor;
     }
     
     public static int escolhaAI(String atributo){
         if(atributo == "vida"){
             System.out.println("\nAI esta escolhendo uma carta com vida alta...");
-            return AI_EscolhaCartaDeVida();
+            escolhaAI = AI_EscolhaCartaDeVida();
+            return escolhaAI;
         }else if(atributo == "defesa"){
             System.out.println("\nAI esta escolhendo uma carta com defesa alta...");
-            return AI_EscolhaCartaDeDefesa();
+            escolhaAI = AI_EscolhaCartaDeDefesa();
+            return escolhaAI;
         }else{
             System.out.println("\nAI esta escolhendo uma carta com forca alta...");
-            return AI_EscolhaCartaDeForca();
+            escolhaAI = AI_EscolhaCartaDeForca();
+            return escolhaAI;
         }
+    }
+
+    public static int getEscolhaAI() {
+        return escolhaAI;
     }
     
     private static int AI_EscolhaCartaDeVida(){
@@ -201,86 +215,77 @@ public class Projeto {
     private static String calculoVida(int cartaEscolhida, int cartaAI){
         ArrayList<Cartas> listaCartasAI = player.get(1).getListaCartas();
         ArrayList<Cartas> listaCartasJogador = player.get(0).getListaCartas();
+        String resultado;
         
         int VidaAI = (int) listaCartasAI.get(cartaAI).getVida();
         int VidaJogador = (int) listaCartasJogador.get(cartaEscolhida).getVida();
-        System.out.println("\nTESTE DE VIDA:  AI - "+ VidaAI + "  Jogador - " + VidaJogador + "\n");
+        System.out.println("\nTESTE DE VIDA:  AI - "+ VidaAI + "  Jogador - " + VidaJogador);
         
         if(VidaAI < VidaJogador){
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            return player.get(0).getNickName();
+            resultado = player.get(0).getNickName();
+        }else if(VidaAI > VidaJogador){
+            resultado = player.get(1).getNickName();
+        }else{
+            resultado = "empate";
         }
-        else if(VidaAI > VidaJogador){
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            return player.get(1).getNickName();
-        }
-        else{
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            return "empate";
-        }
+        
+        processoRemocao(listaCartasAI, listaCartasJogador, cartaEscolhida, cartaAI);
+        return resultado;
     }
             
     private static String calculoDefesa(int cartaEscolhida, int cartaAI){
         ArrayList<Cartas> listaCartasAI = player.get(1).getListaCartas();
         ArrayList<Cartas> listaCartasJogador = player.get(0).getListaCartas();
+        String resultado;
         
         int DefesaAI = (int) listaCartasAI.get(cartaAI).getDefesa();
         int DefesaJogador = (int) listaCartasJogador.get(cartaEscolhida).getDefesa();
-        System.out.println("\nTESTE DE DEFESA:  AI - "+ DefesaAI + "  Jogador - " + DefesaJogador + "\n");
+        System.out.println("\nTESTE DE DEFESA:  AI - "+ DefesaAI + "  Jogador - " + DefesaJogador);
         
         if(DefesaAI < DefesaJogador){
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            return player.get(0).getNickName();
+            resultado = player.get(0).getNickName();
+        }else if(DefesaAI > DefesaJogador){
+            resultado = player.get(1).getNickName();
+        }else{
+            resultado = "empate";
         }
-        else if(DefesaAI > DefesaJogador){
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            return player.get(1).getNickName();
-        }
-        else{
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            return "empate";
-        }
+        
+        processoRemocao(listaCartasAI, listaCartasJogador, cartaEscolhida, cartaAI);
+        return resultado;
     }
             
     private static String calculoForca(int cartaEscolhida, int cartaAI){
         ArrayList<Cartas> listaCartasAI = player.get(1).getListaCartas();
         ArrayList<Cartas> listaCartasJogador = player.get(0).getListaCartas();
+        String resultado;
         
         int ForcaaAI = (int) listaCartasAI.get(cartaAI).getForca();
         int ForcaJogador = (int) listaCartasJogador.get(cartaEscolhida).getForca();
-        System.out.println("\nTESTE DE FORCA:  AI - "+ ForcaaAI + "  Jogador - " + ForcaJogador + "\n");
+        System.out.println("\nTESTE DE FORCA:  AI - "+ ForcaaAI + "  Jogador - " + ForcaJogador);
         
         if(ForcaaAI < ForcaJogador){
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            return player.get(0).getNickName();
+            resultado = player.get(0).getNickName();
+        }else if(ForcaaAI > ForcaJogador){
+            resultado = player.get(1).getNickName();
+        }else{
+            resultado = "empate";
         }
-        else if(ForcaaAI > ForcaJogador){
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            return player.get(1).getNickName();
-        }
-        else{
-            removerCarta(player.get(1).getListaCartas(), cartaAI);
-            removerCarta(player.get(0).getListaCartas(), cartaEscolhida);
-            return "empate";
-        }
-    }    
+        
+        processoRemocao(listaCartasAI, listaCartasJogador, cartaEscolhida, cartaAI);
+        return resultado;
+    }   
+    
+    private static void processoRemocao(ArrayList listaAI, ArrayList listaJogador, int posicaoJogador, int posicaoAI){
+            removerCarta(listaAI, posicaoAI);
+            removerCarta(listaJogador, posicaoJogador);
+    }
     
     public static void removerCarta(ArrayList lista, int posicao){
-        System.out.println("\nRemovendo carta "+ posicao + " em: "+ lista + "\n");
+        System.out.println("\nRemovendo carta "+ posicao + " em: "+ lista);
         lista.remove(posicao);
         
         if(lista == player.get(1).getListaCartas())
             cartasAI.atualizarCartasAI(posicao);
-        else
-            cartasAI.atualizarCartasJogador(posicao);
     }
     
      public void limpar(){

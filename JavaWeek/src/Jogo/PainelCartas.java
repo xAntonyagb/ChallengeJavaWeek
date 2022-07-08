@@ -18,9 +18,9 @@ import java.util.Random;
 
         private void randomizar(){
             Random r = new Random();
-            Random_Um = r.nextInt(3);
-            Random_Dois = r.nextInt(3);
-            Random_Tres = r.nextInt(3);
+            Random_Um = r.nextInt(15);
+            Random_Dois = r.nextInt(15);
+            Random_Tres = r.nextInt(15);
 
             btCarta_Um.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + Random_Um +".png")));
             btCarta_Dois.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + Random_Dois +".png")));

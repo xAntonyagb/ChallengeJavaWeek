@@ -7,16 +7,12 @@ import model.Cartas;
 
 public class Batalha extends javax.swing.JFrame {
     CartasEscolhidas deckCartas = new CartasEscolhidas();
-    public static int[] R_cartdas = new int[3];
+    public static int[] D_cartdas = new int[3];     
     
     Projeto main = new Projeto();
-    int turno;
+    private static int turno;
     
-    public Batalha() {
-        R_cartdas[0] = deckCartas.cartas[0];
-        R_cartdas[1] = deckCartas.cartas[1];
-        R_cartdas[2] = deckCartas.cartas[2];
-                
+    public Batalha() {    
         if(deckCartas.isStart() == true){
             initComponents();
             exibirCartas();
@@ -24,16 +20,20 @@ public class Batalha extends javax.swing.JFrame {
             Random r = new Random();
             this.turno = r.nextInt(2);
             definirTurno(turno);
+            
+            D_cartdas[0]=0;
+            D_cartdas[1]=1;
+            D_cartdas[2]=2;
         }
     }
     
     public void exibirCartas(){
         if(carta1 != null)
-            carta1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + R_cartdas[0] +".png")));
+            carta1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + deckCartas.cartas[0] +".png")));
         if(carta2 != null)
-            carta2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + R_cartdas[1] +".png")));
+            carta2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + deckCartas.cartas[1] +".png")));
         if(carta3 != null)
-            carta3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + R_cartdas[2] +".png")));
+            carta3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + deckCartas.cartas[2] +".png")));
         //img1.setIcon(null);
         //getContentPane().remove(teste);
     }
@@ -51,18 +51,6 @@ public class Batalha extends javax.swing.JFrame {
             cartas[2] = posicao;
         }
     }
-    
-     public void atualizarCartasJogador(int posicao){
-         if(posicao == 1){
-             R_cartdas[1] = R_cartdas[2];
-         }else if(posicao == 0){
-             R_cartdas[0] = R_cartdas[1];
-             R_cartdas[1] = R_cartdas[2];
-         }else
-             cartas[3] = cartas[0];
-         exibirCartas();
-         getContentPane().repaint();
-     }
      
      public void atualizarCartasAI(int posicao){
          if(posicao == 1){
@@ -105,7 +93,7 @@ public class Batalha extends javax.swing.JFrame {
     private void turnoAI(){
         JOptionPane.showMessageDialog(null, "O turno é do adiversário!");
         int escolha = main.AI_MelhorAtributo();
-        System.out.println("TURNO DA AI | Escolha da AI: "+escolha);
+        System.out.println("Escolha da AI: "+ escolha);
         levarParaTeste(escolha);
     }
     
@@ -128,38 +116,40 @@ public class Batalha extends javax.swing.JFrame {
             System.exit(0);
         }
         
-        int cartaAI = cartas[main.escolhaAI(atributo)];
-        
         AtributoEscolhido.setText(atributo);
-        cartaPC.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img" + cartaAI +".png")));
+        cartaPC.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/Carta_indefinida.png")));
         getContentPane().repaint();
     }
         
-        private void vitorias(String resultado){
-            int PontosAI=0;
-            int PontosJogador=0;
-            ArrayList<Cartas> AI_deckCartas = main.player.get(1).getListaCartas();
-            
+        private static int PontosAI=0;
+        private static int PontosJogador=0;
+        private static int NecessarioFim=3;
+        
+        public void vitorias(String resultado){
             if(!(resultado.equals("empate") || resultado.equals("computador"))){
                 PontosJogador += 1;
-            }else if(resultado.equals("computador") || AI_deckCartas.size() == 0){
+            }else if(resultado.equals("computador")){
                 PontosAI += 1;
             }else{
+                NecessarioFim += 1;
                 PontosJogador += 1;
                 PontosAI += 1;
-                System.out.println("empate");
             }
-            
-            if(main.Tamanho_DeckJogador() == 0 || main.Tamanho_DeckAI() == 0){
+            System.out.println("Pontos AI: " + PontosAI + "  | Pontos jogador: " + PontosJogador + "\n");
+            checarFim();
+        }
+        
+        public void checarFim(){
+            if((PontosAI+PontosJogador) == NecessarioFim){
                 if(PontosJogador > PontosAI){
-                    JOptionPane.showMessageDialog(null, resultado + " venceu o jogo!");
+                    JOptionPane.showMessageDialog(null, main.player.get(0).getNickName() + " venceu o jogo!");
                 }else if(PontosJogador < PontosAI){
-                    JOptionPane.showMessageDialog(null, "Você perdeu! "+ resultado + " é o vencedor");
+                    JOptionPane.showMessageDialog(null, "Você perdeu! "+ main.player.get(1).getNickName() + " é o vencedor");
                 }else{
                     JOptionPane.showMessageDialog(null, "empate, não houve ganhador!");
                 }
                 System.exit(0);
-            }  
+            }
         }
 
     @SuppressWarnings("unchecked")
@@ -277,9 +267,16 @@ public class Batalha extends javax.swing.JFrame {
 
     private void carta1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_carta1ActionPerformed
         getContentPane().remove(carta1);
-        int cartaEscolhida = R_cartdas[0];
+        D_cartdas[1]=D_cartdas[0];
+        D_cartdas[2]=D_cartdas[1];
+        
+        int cartaEscolhida = D_cartdas[0];
         String atributo = AtributoEscolhido.getText();
+        
+        System.out.println("\nExcluindo carta 1, posicao: " + D_cartdas[0]);
+        cartaPC.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img"+ cartas[main.escolhaAI(atributo)] +".png")));
         String resultado = main.vencedorRodada(cartaEscolhida, atributo);
+        
         if(resultado.equals("empate")){
             JOptionPane.showMessageDialog(null, "O resultado da rodada é: " + resultado);
         }else{
@@ -292,24 +289,33 @@ public class Batalha extends javax.swing.JFrame {
 
     private void carta2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_carta2ActionPerformed
         getContentPane().remove(carta2);
+        D_cartdas[2]=D_cartdas[1];
         
-        int cartaEscolhida = R_cartdas[1];
+        int cartaEscolhida = D_cartdas[1];
         String atributo = AtributoEscolhido.getText();
+        
+        System.out.println("\nExcluindo carta 2, posicao: " + D_cartdas[1]);
+        cartaPC.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img"+ cartas[main.escolhaAI(atributo)] +".png")));
         String resultado = main.vencedorRodada(cartaEscolhida, atributo);
+        
         if(resultado.equals("empate")){
             JOptionPane.showMessageDialog(null, "O resultado da rodada é: " + resultado);
         }else{
             JOptionPane.showMessageDialog(null, "O resultado da rodada é: " + resultado + " ganha essa rodada!");
         }
         getContentPane().repaint();
+        vitorias(resultado);
         definirTurno(getTurno());
     }//GEN-LAST:event_carta2ActionPerformed
 
     private void carta3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_carta3ActionPerformed
         getContentPane().remove(carta3);
         
-        int cartaEscolhida = R_cartdas[2];
+        int cartaEscolhida = D_cartdas[2];
         String atributo = AtributoEscolhido.getText();
+        
+        System.out.println("\nExcluindo carta 3, posicao: " + D_cartdas[2]);
+        cartaPC.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagens/img"+ cartas[main.escolhaAI(atributo)] +".png")));
         String resultado = main.vencedorRodada(cartaEscolhida, atributo);
         if(resultado.equals("empate")){
             JOptionPane.showMessageDialog(null, "O resultado da rodada é: " + resultado);
@@ -317,6 +323,7 @@ public class Batalha extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "O resultado da rodada é: " + resultado + " ganha essa rodada!");
         }
         getContentPane().repaint();
+        vitorias(resultado);
         definirTurno(getTurno());
     }//GEN-LAST:event_carta3ActionPerformed
 
@@ -359,7 +366,7 @@ public class Batalha extends javax.swing.JFrame {
     private javax.swing.JButton carta1;
     private javax.swing.JButton carta2;
     private javax.swing.JButton carta3;
-    private javax.swing.JLabel cartaPC;
+    public javax.swing.JLabel cartaPC;
     private javax.swing.JLabel escritaCartaPC;
     private javax.swing.JLabel escritaCartaPC1;
     private javax.swing.JSeparator jSeparator1;
